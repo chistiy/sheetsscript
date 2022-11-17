@@ -1,5 +1,8 @@
 <?php
-$id = '********';
+namespace chistiy;
+class parsing {
+    public function parsing() {
+$id = '1t8A7zYEhB6osXWOWV8JxfOUaEYSvA8bp8Wu2s8rXbWg';
 //звёздочки это ссыль на документ после spreadsheets/d/
 $gid = '0';
 
@@ -14,3 +17,5 @@ $array = array_map('str_getcsv', $csv);
 
 
 print_r($array);
+    }
+}
