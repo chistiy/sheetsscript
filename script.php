@@ -36,7 +36,7 @@ class Parsing
 
     public function getCsv(): array
     {
-        $id = '***********';
+        $id = '1t8A7zYEhB6osXWOWV8JxfOUaEYSvA8bp8Wu2s8rXbWg';
 //ссыль на документ после spreadsheets/d/
         $gid = '0';
 // $gid = id страницы
@@ -51,10 +51,26 @@ class Parsing
 
         print_r($array);
     }
-//    public function find()
-//    {
-//       return FilesFormatTable::query()
-//    }
+
+    public function find()
+    {
+        $arrayX = getCsv();
+        $arrayY = getFromDB();
+        FilesFormatTable::query()
+            ->startTransaction();
+        try {
+            foreach ($arrayX as $x) {
+                if (isset($arrayY[$x])) {
+                    insertToDb($x);
+                    insertToLog($x);
+                }
+            }
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollback();
+            echo 'проблемы';
+        }
+    }
 }
 
 echo '<pre>';
