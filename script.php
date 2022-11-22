@@ -29,42 +29,6 @@ class Parsing
         $this->updateFormatTo();
     }
 
-    private function updateFormatTo()
-    {
-        $id = $this->formats[$this->csv[9]]['ID'];
-        $idForUpdate = $this->formats[$this->csv[7]]['ID'];
-        FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => [$id]]);
-    }
-
-    /**
-     * @return void
-     */
-    private function extendedFormats(): void
-    {
-        if (!isset($this->formats[$this->csv[7]])) {
-            //todo create
-
-            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
-            if ($id) {
-                $this->formats[$this->csv[7]] = [
-                    'ID' => $id,
-                ];
-            }
-            unset($id);
-        }
-
-        if (!isset($this->formats[$this->csv[9]])) {
-            //todo create
-            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
-            if ($id) {
-                $this->formats[$this->csv[9]] = [
-                    'ID' => $id,
-                ];
-            }
-            unset($id);
-        }
-    }
-
     /**
      * @throws ObjectPropertyException
      * @throws SystemException
@@ -85,7 +49,7 @@ class Parsing
     /**
      * @return array
      */
-    private function getCsv(): array
+    public function getCsv(): array
     {
         $id = '*****';
         //ссыль на документ после spreadsheets/d/
@@ -98,9 +62,43 @@ class Parsing
 
         return array_map('str_getcsv', $csv);
     }
+
+    /**
+     * @return void
+     */
+    public function extendedFormats(): void
+    {
+        if (!isset($this->formats[$this->csv[7]])) {
+            //создавалка 1
+
+            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
+            if ($id) {
+                $this->formats[$this->csv[7]] = [
+                    'ID' => $id,
+                ];
+            }
+            unset($id);
+        }
+
+        if (!isset($this->formats[$this->csv[9]])) {
+            //создавалка 1
+            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
+            if ($id) {
+                $this->formats[$this->csv[9]] = [
+                    'ID' => $id,
+                ];
+            }
+            unset($id);
+        }
+    }
+
+    private function updateFormatTo()
+    {
+        $id = $this->formats[$this->csv[9]]['ID'];
+        $idForUpdate = $this->formats[$this->csv[7]]['ID'];
+        FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => [$id]]);
+    }
 }
 
-echo "<pre>";
-print_r(Parsing::class);
-echo "</pre>";
+echo __FILE__ . ' @ ' . __LINE__ . '<pre>' . print_r(Parsing::extendedFormats(), true) . '</pre>';
 
