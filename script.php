@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Onlineconvertfree\Main\Orm\FilesFormatTable;
@@ -10,6 +11,9 @@ require_once 'bitrix/modules/main/cli/bootstrap.php';
 
 class Parsing
 {
+    private $formats = [];
+    private $csv = [];
+
     /**
      * @throws ObjectPropertyException
      * @throws SystemException
@@ -17,9 +21,48 @@ class Parsing
      */
     public function __construct()
     {
-        CModule::IncludeModule('highloadblock');
+        Loader::IncludeModule('highloadblock');
 
-        print_r($this->getFormats(), true);
+        $this->formats = $this->getFormats();
+        $this->csv = $this->getCsv();
+        $this->extendedFormats();
+        $this->updateFormatTo();
+    }
+
+    private function updateFormatTo()
+    {
+        $id = $this->formats[$this->csv[9]]['ID'];
+        $idForUpdate = $this->formats[$this->csv[7]]['ID'];
+        FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => [$id]]);
+    }
+
+    /**
+     * @return void
+     */
+    private function extendedFormats(): void
+    {
+        if (!isset($this->formats[$this->csv[7]])) {
+            //todo create
+
+            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
+            if ($id) {
+                $this->formats[$this->csv[7]] = [
+                    'ID' => $id,
+                ];
+            }
+            unset($id);
+        }
+
+        if (!isset($this->formats[$this->csv[9]])) {
+            //todo create
+            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
+            if ($id) {
+                $this->formats[$this->csv[9]] = [
+                    'ID' => $id,
+                ];
+            }
+            unset($id);
+        }
     }
 
     /**
@@ -27,52 +70,37 @@ class Parsing
      * @throws SystemException
      * @throws ArgumentException
      */
-    public function getFormats(): array
+    private function getFormats(): array
     {
-        return FilesFormatTable::query()
+        $result = FilesFormatTable::query()
             ->setSelect(['*'])
             ->fetchAll();
+        foreach ($result as $item) {
+            $formats[$item['UF_FORMAT']] = $item;
+        }
+
+        return $formats ?? [];
     }
 
-    public function getCsv(): array
+    /**
+     * @return array
+     */
+    private function getCsv(): array
     {
-        $id = '1t8A7zYEhB6osXWOWV8JxfOUaEYSvA8bp8Wu2s8rXbWg';
-//ссыль на документ после spreadsheets/d/
+        $id = '*****';
+        //ссыль на документ после spreadsheets/d/
         $gid = '0';
-// $gid = id страницы
-
+        // $gid = id страницы
 
         $csv = file_get_contents('https://docs.google.com/spreadsheets/d/' . $id . '/export?format=csv&gid=' . $gid);
 
         $csv = explode("\r\n", $csv);
 
-        $array = array_map('str_getcsv', $csv);
-        return $array;
-
-        print_r($array);
-    }
-
-    public function find()
-    {
-        $arrayX = getCsv();
-        $arrayY = getFromDB();
-        FilesFormatTable::query()
-            ->startTransaction();
-        try {
-            foreach ($arrayX as $x) {
-                if (isset($arrayY[$x])) {
-                    insertToDb($x);
-                    insertToLog($x);
-                }
-            }
-            $db->commit();
-        } catch (Exception $e) {
-            $db->rollback();
-            echo 'проблемы';
-        }
+        return array_map('str_getcsv', $csv);
     }
 }
 
-echo '<pre>';
-var_dump(Parsing::getCsv($array));
-echo '<pre>';
+echo "<pre>";
+print_r(Parsing::class);
+echo "</pre>";
+
