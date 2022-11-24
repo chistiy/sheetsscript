@@ -11,8 +11,8 @@ require_once 'bitrix/modules/main/cli/bootstrap.php';
 
 class Parsing
 {
-    private $formats = [];
-    private $csv = [];
+    public $formats = [];
+    public $csv = [];
 
     /**
      * @throws ObjectPropertyException
@@ -34,15 +34,15 @@ class Parsing
      * @throws SystemException
      * @throws ArgumentException
      */
-    private function getFormats(): array
+    public function getFormats(): array
     {
         $result = FilesFormatTable::query()
             ->setSelect(['*'])
             ->fetchAll();
         foreach ($result as $item) {
             $formats[$item['UF_FORMAT']] = $item;
-        }
 
+        }
         return $formats ?? [];
     }
 
@@ -51,7 +51,7 @@ class Parsing
      */
     public function getCsv(): array
     {
-        $id = '*****';
+        $id = '1t8A7zYEhB6osXWOWV8JxfOUaEYSvA8bp8Wu2s8rXbWg';
         //ссыль на документ после spreadsheets/d/
         $gid = '0';
         // $gid = id страницы
@@ -68,37 +68,49 @@ class Parsing
      */
     public function extendedFormats(): void
     {
-        if (!isset($this->formats[$this->csv[7]])) {
-            //создавалка 1
+        foreach ($this->csv as $array) {
+            if (!isset($this->formats[$array[7]])) {
+                $result = FilesFormatTable::add(['UF_FORMAT' => $array[7]]);
+                if ($result->isSuccess()) {
+                    $this->formats[$array[7]] = [
+                        'ID' => $result->getId(),
+                        'UF_FORMAT' => $array[7],
+                    ];
+                } else {
+                    echo "произошёл факап";
+                    var_dump($result->getErrorMessages());
+                }
 
-            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
-            if ($id) {
-                $this->formats[$this->csv[7]] = [
-                    'ID' => $id,
-                ];
             }
-            unset($id);
         }
 
-        if (!isset($this->formats[$this->csv[9]])) {
-            //создавалка 1
-            $id = FilesFormatTable::add(['UF_FORMAT' => $this->formats[$this->csv[9]]]);
-            if ($id) {
-                $this->formats[$this->csv[9]] = [
-                    'ID' => $id,
-                ];
-            }
-            unset($id);
-        }
+
     }
 
-    private function updateFormatTo()
+
+    public function updateFormatTo()
     {
-        $id = $this->formats[$this->csv[9]]['ID'];
-        $idForUpdate = $this->formats[$this->csv[7]]['ID'];
-        FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => [$id]]);
+
+        foreach ($this->csv as $array) {
+            $idForUpdate = $this->formats[$array[7]]['ID'];
+            $id = [$this->formats[$array[9]]['ID']];
+            if (isset($id, $idForUpdate)) {
+
+                $data = $this->formats[$array[7]]['UF_FORMAT_TO'];
+                $data[] = $id[0];
+
+                $result = FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => $data]);
+                echo '<pre>';
+                var_dump($result);
+                die();
+                echo '<pre>';
+            } else {
+                echo "";
+            }
+        }
     }
+
+
 }
 
-echo __FILE__ . ' @ ' . __LINE__ . '<pre>' . print_r(Parsing::extendedFormats(), true) . '</pre>';
-
+new Parsing();
