@@ -91,23 +91,35 @@ class Parsing
     public function updateFormatTo()
     {
 
+        $updateFormats = [];
         foreach ($this->csv as $array) {
-            $idForUpdate = $this->formats[$array[7]]['ID'];
-            $id = [$this->formats[$array[9]]['ID']];
-            if (isset($id, $idForUpdate)) {
+            $formatFrom = $array[7];
+            $formatTo = $array[9];
+            $idFormatFrom = $this->formats[$formatFrom]['ID'];
+            $idFormatTo = $this->formats[$formatTo]['ID'];
+            if (isset($idFormatTo, $idFormatFrom)) {
 
-                $data = $this->formats[$array[7]]['UF_FORMAT_TO'];
-                $data[] = $id[0];
-
-                $result = FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => $data]);
+                if (in_array($idFormatTo, $this->formats[$formatFrom]['UF_FORMAT_TO'])) {
+                    continue;
+                }
+                $this->formats[$formatFrom]['UF_FORMAT_TO'][] = $idFormatTo;
+                $updateFormats[] = $formatFrom;
+//                $result = FilesFormatTable::update($idForUpdate, ['UF_FORMAT_TO' => $this->formats[$array[7]]['UF_FORMAT_TO']]);
                 echo '<pre>';
-                var_dump($result);
-                die();
+                var_dump($idFormatTo);
                 echo '<pre>';
             } else {
                 echo "";
             }
         }
+
+        var_dump($updateFormats);
+        $updateFormats = array_unique($updateFormats);
+        foreach ($updateFormats as $format) {
+            $id = $this->formats[$format]['ID'];
+            $result = FilesFormatTable::update($id, ['UF_FORMAT_TO' => $this->formats[$format]['UF_FORMAT_TO']]);
+        }
+
     }
 
 
