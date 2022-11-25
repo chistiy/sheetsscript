@@ -51,7 +51,8 @@ class Parsing
      */
     public function getCsv(): array
     {
-        $id = '1t8A7zYEhB6osXWOWV8JxfOUaEYSvA8bp8Wu2s8rXbWg';
+        $id = '****
+        ';
         //ссыль на документ после spreadsheets/d/
         $gid = '0';
         // $gid = id страницы
