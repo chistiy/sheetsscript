@@ -4,7 +4,7 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
-use Onlineconvertfree\Main\Orm\FilesFormatTable;
+use free\Main\Orm\FilesFormatTable;
 
 $_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__);
 require_once 'bitrix/modules/main/cli/bootstrap.php';
